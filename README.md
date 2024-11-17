@@ -29,25 +29,114 @@
 ### Overall System Architecture
 ```mermaid
 graph LR
+    %% 클라이언트와 로드 밸런서
     Client([Client])
-    LB[Load Balancer]
-    Gateway[API Gateway]
-    File[File Service]
-    
+    LB[Load Balancer<br/>(HAProxy)]
+
+    %% API 게이트웨이 (인증 및 권한 관리 통합)
+    Gateway[API Gateway<br/>(Authentication & Authorization)]
+
+    %% Kafka 클러스터들
+    Kafka1[Kafka Cluster 1]
+    Kafka2[Kafka Cluster 2]
+    Kafka3[Kafka Cluster 3]
+
+    %% 마이크로서비스들
+    FileService[File Service]
+    PostsService[Posts Service]
+    CommentsService[Comments Service]
+    FollowService[Follow Service]
+    AlertsService[Alerts Service]
+    SearchService[Search Service]
+    MediaService[Media Service]
+    ChatService[Chatting Service]
+    AnalyzeService[Analyze Service]
+    SuggestService[Suggestion Service]
+    LoggingService[Logging Service]
+
+    %% 데이터베이스 및 모니터링
+    PostgreSQL[(PostgreSQL HA Cluster)]
+    Redis[(Redis Cluster)]
+    MongoDB[(MongoDB)]
+    Grafana[Grafana]
+    Prometheus[Prometheus]
+
+    %% 연결 관계
     Client --> LB
     LB --> Gateway
-    Gateway --> File
-    Gateway --> etc
-    
+
+    %% API 게이트웨이와 Kafka 연결
+    Gateway --> Kafka1
+    Gateway --> Kafka2
+    Gateway --> Kafka3
+
+    %% Kafka와 마이크로서비스 연결
+    Kafka1 --> FileService
+    Kafka1 --> PostsService
+    Kafka1 --> CommentsService
+
+    Kafka2 --> FollowService
+    Kafka2 --> AlertsService
+    Kafka2 --> SearchService
+
+    Kafka3 --> MediaService
+    Kafka3 --> ChatService
+    Kafka3 --> AnalyzeService
+    Kafka3 --> SuggestService
+    Kafka3 --> LoggingService
+
+    %% 마이크로서비스와 데이터베이스 연결
+    FileService --> PostgreSQL
+    PostsService --> PostgreSQL
+    CommentsService --> PostgreSQL
+    FollowService --> PostgreSQL
+    AlertsService --> PostgreSQL
+    SearchService --> Elasticsearch[(Elasticsearch)]
+    MediaService --> Storage[(AWS S3 / GCP Storage)]
+    ChatService --> MongoDB
+    AnalyzeService --> DataWarehouse[(Data Warehouse)]
+    SuggestService --> MLModels[(Machine Learning Models)]
+    LoggingService --> Elasticsearch
+
+    %% 모니터링
+    Gateway --> Prometheus
+    Gateway --> Grafana
+    Prometheus --> Grafana
+
+    %% Redis 연결
+    Gateway --> Redis
+    Microservices[Microservices]
+    subgraph Microservices
+        FileService
+        PostsService
+        CommentsService
+        FollowService
+        AlertsService
+        SearchService
+        MediaService
+        ChatService
+        AnalyzeService
+        SuggestService
+        LoggingService
+    end
+
+    %% 인프라스트럭처 그룹화
     subgraph Infrastructure
         LB
+        Kafka1
+        Kafka2
+        Kafka3
+        PostgreSQL
+        Redis
+        MongoDB
+        Prometheus
+        Grafana
     end
-    
-    subgraph Services
-        Gateway
-        File
-        etc
-    end
+
+    %% 기타 연결
+    Gateway --> Redis
+    Microservices --> Redis
+    Microservices --> Prometheus
 ```
 
 ## Project Structure
