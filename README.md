@@ -31,10 +31,10 @@
 graph LR
     %% 클라이언트와 로드 밸런서
     Client([Client])
-    LB[Load Balancer<br/>(HAProxy)]
+    LB[Load Balancer\n(HAProxy)]
 
     %% API 게이트웨이 (인증 및 권한 관리 통합)
-    Gateway[API Gateway<br/>(Authentication & Authorization)]
+    Gateway[API Gateway\n(Authentication & Authorization)]
 
     %% Kafka 클러스터들
     Kafka1[Kafka Cluster 1]
@@ -60,6 +60,10 @@ graph LR
     MongoDB[(MongoDB)]
     Grafana[Grafana]
     Prometheus[Prometheus]
+    Elasticsearch[(Elasticsearch)]
+    Storage[(AWS S3 / GCP Storage)]
+    DataWarehouse[(Data Warehouse)]
+    MLModels[(Machine Learning Models)]
 
     %% 연결 관계
     Client --> LB
@@ -91,11 +95,11 @@ graph LR
     CommentsService --> PostgreSQL
     FollowService --> PostgreSQL
     AlertsService --> PostgreSQL
-    SearchService --> Elasticsearch[(Elasticsearch)]
-    MediaService --> Storage[(AWS S3 / GCP Storage)]
+    SearchService --> Elasticsearch
+    MediaService --> Storage
     ChatService --> MongoDB
-    AnalyzeService --> DataWarehouse[(Data Warehouse)]
-    SuggestService --> MLModels[(Machine Learning Models)]
+    AnalyzeService --> DataWarehouse
+    SuggestService --> MLModels
     LoggingService --> Elasticsearch
 
     %% 모니터링
@@ -105,7 +109,8 @@ graph LR
 
     %% Redis 연결
     Gateway --> Redis
-    Microservices[Microservices]
+
+    %% 마이크로서비스 그룹화 및 연결
     subgraph Microservices
         FileService
         PostsService
@@ -119,6 +124,8 @@ graph LR
         SuggestService
         LoggingService
     end
+    Microservices --> Redis
+    Microservices --> Prometheus
 
     %% 인프라스트럭처 그룹화
     subgraph Infrastructure
@@ -131,12 +138,11 @@ graph LR
         MongoDB
         Prometheus
         Grafana
+        Elasticsearch
+        Storage
+        DataWarehouse
+        MLModels
     end
-
-    %% 기타 연결
-    Gateway --> Redis
-    Microservices --> Redis
-    Microservices --> Prometheus
 ```
 
 ## Project Structure
