@@ -1,0 +1,28 @@
+{
+    "title": "PostgreSQL Cluster",
+    "panels": [
+      {
+        "title": "Replication Lag",
+        "type": "graph",
+        "datasource": "Prometheus", 
+        "targets": [
+          {
+            "expr": "pg_replication_lag",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      },
+      {
+        "title": "Active Connections",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      }
+    ]
+   }
+   

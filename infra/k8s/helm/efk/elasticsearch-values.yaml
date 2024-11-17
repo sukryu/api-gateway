@@ -1,0 +1,28 @@
+clusterName: "elasticsearch"
+nodeGroup: "master"
+
+replicas: 3
+
+# 리소스 요구사항 낮추기
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: "standard"
+
+# 단일 노드 모드 활성화 (테스트용)
+masterService: "elasticsearch-master"
+
+roles:
+  - master
+  - ingest
+  - data

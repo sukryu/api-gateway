@@ -1,0 +1,50 @@
+# haproxy/values.yaml
+controller:
+  replicaCount: 1
+  
+  config:
+    global:
+      log: 
+        - /dev/log local0
+        - /dev/log local1 notice
+      maxconn: 2000
+      stats:
+        socket: /run/haproxy/admin.sock mode 660 level admin
+        timeout: 30s
+    
+    defaults:
+      mode: http
+      log: global
+      option: httplog
+      timeout:
+        connect: 5s
+        client: 50s
+        server: 50s
+      
+    frontend:
+      http_front:
+        bind: "*:80"
+        mode: http
+        default_backend: http_back
+    
+    backend:
+      http_back:
+        balance: roundrobin
+        servers:
+          - name: app1
+            address: 192.168.1.10:8080
+            check: true
+          - name: app2
+            address: 192.168.1.11:8080
+            check: true
+          - name: app3
+            address: 192.168.1.12:8080
+            check: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi

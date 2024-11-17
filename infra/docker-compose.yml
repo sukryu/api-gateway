@@ -1,0 +1,187 @@
+version: '3.8'
+services:
+ redis-node-0:
+   container_name: redis-node-0
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node0:/data
+     - ./redis/conf/node0.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7000:7000"
+     - "17000:17000"
+   networks:
+     - redis-cluster
+
+ redis-node-1:
+   container_name: redis-node-1  
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node1:/data
+     - ./redis/conf/node1.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7001:7001"
+     - "17001:17001"
+   networks:
+     - redis-cluster
+
+ redis-node-2:
+   container_name: redis-node-2
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node2:/data
+     - ./redis/conf/node2.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7002:7002" 
+     - "17002:17002"
+   networks:
+     - redis-cluster
+
+ redis-node-3:
+   container_name: redis-node-3
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node3:/data
+     - ./redis/conf/node3.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7003:7003"
+     - "17003:17003"
+   networks:
+     - redis-cluster
+
+ redis-node-4:
+   container_name: redis-node-4
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node4:/data
+     - ./redis/conf/node4.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7004:7004"
+     - "17004:17004"
+   networks:
+     - redis-cluster
+
+ redis-node-5:
+   container_name: redis-node-5
+   image: redis:6.2
+   command: redis-server /usr/local/etc/redis/redis.conf
+   volumes:
+     - ./redis/node5:/data
+     - ./redis/conf/node5.conf:/usr/local/etc/redis/redis.conf
+   ports:
+     - "7005:7005"
+     - "17005:17005"
+   networks:
+     - redis-cluster
+
+ etcd:
+   image: bitnami/etcd:latest
+   environment:
+     - ALLOW_NONE_AUTHENTICATION=yes
+   ports:
+     - "2379:2379"
+
+ patroni-1:
+   image: patroni/patroni
+   environment:
+     PATRONI_NAME: node1
+     PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+     PATRONI_SCOPE: postgres-cluster
+     PATRONI_ETCD_HOSTS: etcd:2379
+     PATRONI_POSTGRESQL_DATA_DIR: /data/postgresql
+     PATRONI_POSTGRESQL_PGPASS: /tmp/pgpass
+     PATRONI_SUPERUSER_USERNAME: postgres
+     PATRONI_SUPERUSER_PASSWORD: secretpassword
+     PATRONI_REPLICATION_USERNAME: replicator
+     PATRONI_REPLICATION_PASSWORD: replicatorpass
+   volumes:
+     - ./postgres/data1:/data
+   ports:
+     - "5432:5432"
+   depends_on:
+     - etcd
+
+ patroni-2:
+   image: patroni/patroni  
+   environment:
+     PATRONI_NAME: node2
+     PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+     PATRONI_SCOPE: postgres-cluster
+     PATRONI_ETCD_HOSTS: etcd:2379
+     PATRONI_POSTGRESQL_DATA_DIR: /data/postgresql
+     PATRONI_POSTGRESQL_PGPASS: /tmp/pgpass
+     PATRONI_SUPERUSER_USERNAME: postgres
+     PATRONI_SUPERUSER_PASSWORD: secretpassword
+     PATRONI_REPLICATION_USERNAME: replicator
+     PATRONI_REPLICATION_PASSWORD: replicatorpass
+   volumes:
+     - ./postgres/data2:/data
+   ports:
+     - "5433:5432"
+   depends_on:
+     - etcd
+
+ patroni-3:
+   image: patroni/patroni
+   environment:
+     PATRONI_NAME: node3
+     PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+     PATRONI_SCOPE: postgres-cluster
+     PATRONI_ETCD_HOSTS: etcd:2379
+     PATRONI_POSTGRESQL_DATA_DIR: /data/postgresql
+     PATRONI_POSTGRESQL_PGPASS: /tmp/pgpass
+     PATRONI_SUPERUSER_USERNAME: postgres
+     PATRONI_SUPERUSER_PASSWORD: secretpassword
+     PATRONI_REPLICATION_USERNAME: replicator
+     PATRONI_REPLICATION_PASSWORD: replicatorpass
+   volumes:
+     - ./postgres/data3:/data
+   ports:
+     - "5434:5432"
+   depends_on:
+     - etcd
+
+ prometheus:
+   image: prom/prometheus
+   volumes:
+     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+     - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml
+   command:
+     - '--config.file=/etc/prometheus/prometheus.yml'
+     - '--storage.tsdb.retention.time=15d'
+   ports:
+     - "9090:9090"
+
+ grafana:
+   image: grafana/grafana
+   ports:
+     - "3000:3000"
+   volumes:
+     - ./grafana/provisioning:/etc/grafana/provisioning
+     - ./grafana/dashboards:/var/lib/grafana/dashboards
+   environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin
+     - GF_USERS_ALLOW_SIGN_UP=false
+   depends_on:
+     - prometheus
+
+ redis-exporter:
+   image: oliver006/redis_exporter
+   command: -redis.addr redis://redis-node-0:7000
+   ports:
+     - "9121:9121"
+
+ postgres-exporter:
+   image: wrouesnel/postgres_exporter
+   environment:
+     DATA_SOURCE_NAME: "postgresql://postgres:secretpassword@patroni-1:5432/myapp?sslmode=disable"
+   ports:
+     - "9187:9187"
+
+networks:
+ redis-cluster:
+   driver: bridge

@@ -1,0 +1,39 @@
+postgresql:
+  replicaCount: 3  # 클러스터의 복제본 수
+
+  # 인증 정보 설정 (기존에 비밀번호를 저장한 Secret을 참조하거나 새로 설정)
+  auth:
+    existingSecret: postgresql-password  # 이미 생성된 secret 사용
+    postgresPassword: "jinhyeok123"      # superuser 비밀번호
+    replicationPassword: "jinhyeok123"   # replication 사용자 비밀번호
+    password: "jinhyeok123"              # 기본 PostgreSQL 비밀번호
+
+  # 리소스 설정
+  primary:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+  
+  readReplicas:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+  persistence:
+    size: 2Gi
+    storageClass: standard  # 사용하는 스토리지 클래스
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: database  # Prometheus Operator가 설치된 namespace
+    interval: 30s

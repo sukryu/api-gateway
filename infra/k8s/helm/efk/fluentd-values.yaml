@@ -1,0 +1,25 @@
+fluentd:
+  configMaps:
+    forward-input: |
+      <source>
+        @type forward
+        port 24224
+      </source>
+    
+    output-elasticsearch: |
+      <match **>
+        @type elasticsearch
+        host elasticsearch-coordinating-0.logging.svc.cluster.local
+        port 9200
+        logstash_format true
+        include_tag_key true
+        tag_key @log_name
+      </match>
+  
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+    requests:
+      cpu: "200m"
+      memory: "512Mi"

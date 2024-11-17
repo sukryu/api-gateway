@@ -1,0 +1,28 @@
+{
+    "title": "Redis Cluster",
+    "panels": [
+      {
+        "title": "Memory Usage",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      },
+      {
+        "title": "Connected Clients",
+        "type": "graph", 
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "redis_connected_clients",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      }
+    ]
+   }
+   
