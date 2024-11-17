@@ -31,10 +31,10 @@
 graph LR
     %% 클라이언트와 로드 밸런서
     Client([Client])
-    LB[Load Balancer(HAProxy)]
+    LB[Load Balancer HAProxy\]
 
     %% API 게이트웨이 (인증 및 권한 관리 통합)
-    Gateway[API Gateway(Authentication & Authorization)]
+    Gateway[API Gateway Authentication & Authorization]
 
     %% Kafka 클러스터들
     Kafka1[Kafka Cluster 1]
