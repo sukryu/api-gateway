@@ -141,44 +141,44 @@ export class UsersService implements IUserService {
         await queryRunner.startTransaction();
 
         try {
-        // 유니크 필드 중복 검사
-        const { email, username, phoneNumber } = createUserDto;
+            // 유니크 필드 중복 검사
+            const { email, username, phoneNumber } = createUserDto;
 
-        const existingUser = await this.repo.findOneBy({
-            email,
-        });
+            const existingUser = await this.repo.findOneBy({
+                email,
+            });
 
-        if (existingUser) {
-            this.logger.error(`Email '${email}' already exists.`);
-            throw new ConflictException(`Email '${email}' already exists.`);
-        }
+            if (existingUser) {
+                this.logger.error(`Email '${email}' already exists.`);
+                throw new ConflictException(`Email '${email}' already exists.`);
+            }
 
-        const existingUsername = await this.repo.findOneBy({ username });
-        if (existingUsername) {
-            this.logger.error(`Username '${username}' already exists.`);
-            throw new ConflictException(`Username '${username}' already exists.`);
-        }
+            const existingUsername = await this.repo.findOneBy({ username });
+            if (existingUsername) {
+                this.logger.error(`Username '${username}' already exists.`);
+                throw new ConflictException(`Username '${username}' already exists.`);
+            }
 
-        const existingPhoneNumber = await this.repo.findOneBy({ phoneNumber });
-        if (existingPhoneNumber) {
-            this.logger.error(`Phone number '${phoneNumber}' already exists.`);
-            throw new ConflictException(`Phone number '${phoneNumber}' already exists.`);
-        }
+            const existingPhoneNumber = await this.repo.findOneBy({ phoneNumber });
+            if (existingPhoneNumber) {
+                this.logger.error(`Phone number '${phoneNumber}' already exists.`);
+                throw new ConflictException(`Phone number '${phoneNumber}' already exists.`);
+            }
 
-        // 사용자 생성
-        const user = await this.repo.create(createUserDto);
+            // 사용자 생성
+            const user = await this.repo.create(createUserDto);
 
-        await queryRunner.commitTransaction();
-        return user;
+            await queryRunner.commitTransaction();
+            return user;
         } catch (e) {
-        await queryRunner.rollbackTransaction();
-        if (e instanceof ConflictException) {
-            throw e;
-        }
-        this.logger.error(`Error creating user: ${e.message}`, e.stack);
-        throw new InternalServerErrorException(`Error creating user.`);
+            await queryRunner.rollbackTransaction();
+            if (e instanceof ConflictException) {
+                throw e;
+            }
+            this.logger.error(`Error creating user: ${e.message}`, e.stack);
+            throw new InternalServerErrorException(`Error creating user.`);
         } finally {
-        await queryRunner.release();
+            await queryRunner.release();
         }
     }
 
